@@ -61,6 +61,11 @@ class _LearnSignsScreenState extends State<LearnSignsScreen> {
       'tip': 'Solo el dedo pequeño arriba',
     },
     {
+      'letter': 'J',
+      'description': 'Igual que la I, pero dibujando una J en el aire',
+      'tip': 'Meñique traza la letra J',
+    },
+    {
       'letter': 'K',
       'description': 'Índice y medio en V, pulgar entre ellos',
       'tip': 'Dedos apuntando hacia arriba',
@@ -158,6 +163,14 @@ class _LearnSignsScreenState extends State<LearnSignsScreen> {
     await _flutterTts.setPitch(1.0);
     await _flutterTts.setSpeechRate(0.6);
     await _flutterTts.awaitSpeakCompletion(true);
+  }
+
+  // Función auxiliar para obtener la ruta correcta de la imagen
+  String _getImagePath(String letter) {
+    if (letter == 'Ñ') {
+      return 'assets/signs/N_TILDE.jpg';
+    }
+    return 'assets/signs/$letter.jpg';
   }
 
   void _speakLetter() {
@@ -280,10 +293,12 @@ class _LearnSignsScreenState extends State<LearnSignsScreen> {
   }
 
   Widget _buildFlashcard(Map<String, String> data) {
-    return SingleChildScrollView(
+    return Center(
       child: Container(
+        width: double.infinity,
+        height: 620, // Altura fija para todas las tarjetas
         margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 10),
+        padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 24),
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
@@ -303,50 +318,60 @@ class _LearnSignsScreenState extends State<LearnSignsScreen> {
           ],
         ),
         child: Column(
-          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             // Letra grande
             Text(
               data['letter']!,
               style: const TextStyle(
                 color: Colors.white,
-                fontSize: 100,
+                fontSize: 80,
                 fontWeight: FontWeight.bold,
               ),
             ),
 
             const SizedBox(height: 24),
 
-            // Área para imagen (placeholder)
+            // Área para imagen - TAMAÑO FIJO
             Container(
-              width: 120,
-              height: 120,
+              width: 200,  // Ancho fijo
+              height: 200, // Alto fijo
+              padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.2),
+                color: Colors.white,
                 borderRadius: BorderRadius.circular(20),
               ),
-              child: const Icon(
-                Icons.back_hand,
-                size: 60,
-                color: Colors.white70,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Image.asset(
+                  _getImagePath(data['letter']!),
+                  fit: BoxFit.contain, // Mantiene la proporción sin deformar
+                  errorBuilder: (context, error, stackTrace) {
+                    return const Center(
+                      child: Icon(
+                        Icons.image_not_supported,
+                        size: 60,
+                        color: Colors.grey,
+                      ),
+                    );
+                  },
+                ),
               ),
-              // TODO: Reemplazar con Image.asset('assets/signs/${data['letter']}.png')
             ),
 
-            const SizedBox(height: 32),
+            const SizedBox(height: 24),
 
             // Descripción
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Text(
-                data['description']!,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w500,
-                  height: 1.4,
-                ),
+            Text(
+              data['description']!,
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                height: 1.4,
               ),
             ),
 
@@ -354,8 +379,7 @@ class _LearnSignsScreenState extends State<LearnSignsScreen> {
 
             // Tip
             Container(
-              margin: const EdgeInsets.symmetric(horizontal: 24),
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               decoration: BoxDecoration(
                 color: Colors.white.withOpacity(0.15),
                 borderRadius: BorderRadius.circular(12),
@@ -363,15 +387,17 @@ class _LearnSignsScreenState extends State<LearnSignsScreen> {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.lightbulb_outline, color: Colors.amber, size: 20),
+                  const Icon(Icons.lightbulb_outline, color: Colors.amber, size: 18),
                   const SizedBox(width: 8),
                   Flexible(
                     child: Text(
                       data['tip']!,
                       textAlign: TextAlign.center,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
                         color: Colors.white70,
-                        fontSize: 14,
+                        fontSize: 13,
                         fontStyle: FontStyle.italic,
                       ),
                     ),
